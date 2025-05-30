@@ -87,12 +87,13 @@ const resolvers = {
             try {
                 
                 const pedidosObtenidos =   await Pedidos.find({vendedor:ctx.id}).populate('cliente');
-                console.log(pedidosObtenidos)
+                
                 return pedidosObtenidos;
             } catch (error) {
                 console.log(error)
             }
         },
+
         obtenerPedidoById : async(_,{id},ctx)=>{
             
             //verificando si pedido existe
@@ -181,10 +182,11 @@ const resolvers = {
     },
 
     Mutation: {
-        nuevoUsuario: async (_, { input }) => {
+        nuevoUsuario: async (_, { input }, ctx) => {
+            
 
             const { email, password } = input;        //destructuramos input
-
+            
             // Verificar si existe usuario//}
 
             const existeUsuario = await Usuario.findOne({ email })
@@ -228,7 +230,11 @@ const resolvers = {
                 token: crearToken(existeUsuario, process.env.SECRETA, '24h')
             }
         },
-        nuevoProducto: async (_, { input }) => {
+        nuevoProducto: async (_, { input }, ctx) => {
+            //Validando que exista un usuario
+            if (!ctx) {
+                throw new Error('No tienes permisos para realizar esta acción');
+              }
             try {
                 //1) instanciando producto 
                 const producto = new Productos(input)
@@ -240,7 +246,11 @@ const resolvers = {
                 console.log(error)
             }
         },
-        actualizarProducto: async (_, { id, input }) => {
+        actualizarProducto: async (_, { id, input }, ctx) => {
+            //Validando que exista un usuario
+            if (!ctx) {
+                throw new Error('No tienes permisos para realizar esta acción');
+              }
             //Verificando si existe
             let producto = await Productos.findById(id);  //Observe que usamos "let" en este caso.
             //Para poder reasignar la variable luego 
@@ -256,6 +266,10 @@ const resolvers = {
 
         },
         eliminarProducto: async (_, { id }) => {
+            //Validando que exista un usuario
+            if (!ctx) {
+                throw new Error('No tienes permisos para realizar esta acción');
+              }
             //Verificando si existe
             let producto = await Productos.findById(id);
             if (!producto) {
@@ -266,7 +280,9 @@ const resolvers = {
         },
         nuevoCliente: async (_,{input}, ctx)=>{
            //Verificando si el cliente ya existe
-            const {email} = input;
+           if (!ctx) {
+            throw new Error('No tienes permisos para realizar esta acción');
+          }
             
             const cliente = await Clientes.findOne({email});
 
@@ -287,6 +303,10 @@ const resolvers = {
 
         },
         actualizarCliente: async (_,{id,input}, ctx)=>{
+            //Validando que exista un usuario
+            if (!ctx) {
+                throw new Error('No tienes permisos para realizar esta acción');
+              }
             //Verificamos que el cliente existe 
             let cliente = await Clientes.findById(id);
             if(!cliente) {
@@ -308,6 +328,10 @@ const resolvers = {
         },
 
         eliminarCliente: async (_,{id,input}, ctx)=>{
+            //Validando que exista un usuario
+            if (!ctx) {
+                throw new Error('No tienes permisos para realizar esta acción');
+              }
             //Verificamos que el cliente existe 
             let cliente = await Clientes.findById(id);
             if(!cliente) {
@@ -326,6 +350,10 @@ const resolvers = {
             return "Cliente Eliminado"
         },
         nuevoPedido: async (_, {input}, ctx)=>{
+            //Validando que exista un usuario
+            if (!ctx) {
+                throw new Error('No tienes permisos para realizar esta acción');
+              }
 
             const { cliente } = input;
             //Verificamos si cliente existe o no
@@ -362,6 +390,10 @@ const resolvers = {
                 
             },   
             actualizarPedido : async (_,{id, input}, ctx)=> {
+                //Validando que exista un usuario
+            if (!ctx) {
+                throw new Error('No tienes permisos para realizar esta acción');
+              }
                 const {cliente } = input;
                 //existe pedido 
                 
@@ -405,6 +437,10 @@ const resolvers = {
                 return resultado;
             },
             eliminarPedido : async (_,{id}, ctx)=>{
+                //Validando que exista un usuario
+            if (!ctx) {
+                throw new Error('No tienes permisos para realizar esta acción');
+              }
                 //Pedido existe 
                 const pedidoExiste = await Pedidos.findById(id)
                 if(!pedidoExiste) {
